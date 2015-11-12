@@ -18,38 +18,49 @@ class EssayReader{
 	}
 
 	public void readFiles() throws IOException{
+		boolean startingQuotes = true;
 	    Scanner sc;
 	    startingWord = new Word();
+	    Map<String,Word> words = new HashMap<>();
 	    for (File file : folder.listFiles()) {
-	    	System.out.println("file name :: " + file.getName());
-	    	System.out.println("file path :: " + file.getAbsolutePath());
-	        //sc = new Scanner(new File("sherlock_holmes.txt"));
+	    	//System.out.println("file name :: " + file.getName());
+	    	//System.out.println("file path :: " + file.getAbsolutePath());
 	        sc = new Scanner(new BufferedReader(new FileReader(file)));
 
 	        Word currWord = startingWord;
-		    while(sc.hasNext()){
-		        while(sc.hasNextLine()){
-		        	//change later to include punctuation
-					String[] line = sc.nextLine().split("\\s+|(?=\\p{Punct})|(?<=\\p{Punct})");
-					for(int i = 0; i < line.length; i++){
-	        			Word nextWord = new Word(line[i]);
-	        			//System.out.println(nextWord);
+		    while(sc.hasNextLine()){
+	        	//change later to include punctuation
+				String nextLine = sc.nextLine();
+				if(nextLine.isEmpty() && !currWord.getWord().equals(" ")){
+		        	if(words.get(" ") == null){
+        				words.put(" ", new Word(" "));
+        			}
+    				Word nextWord = words.get(" ");
+   	 				currWord.setNextWord(nextWord);
+        			currWord = nextWord;
+				}
+				else{
+					String[] line = nextLine.split("\\s+|(?=\\p{Punct})|(?<=\\p{Punct})");
+					for(String word : line){
+						if(word.equals("\"")){
+							if(startingQuotes){
+								word+= "1";
+							}
+							else{
+								word+= "2";
+							}
+							startingQuotes = !startingQuotes;
+						}
+	        			if(words.get(word) == null){
+	        				words.put(word, new Word(word));
+	        			}
+        				Word nextWord = words.get(word);
 	        			currWord.setNextWord(nextWord);
 	        			currWord = nextWord;
 	        		}
-		        }
-		        //add paragraph line here to currword, since there is nothing on the line but still words later
-		        if(currWord != null){ //Skip over all blank lines at the start of the essay
-		        	Word nextWord = new Word(" ");
-        			currWord.setNextWord(nextWord);
-        			currWord = nextWord;
-		        }
-		        if(sc.hasNext()){
-	        		sc.nextLine();
-		        }
-		    }
+				}
+	        }
     	}
-    	System.out.println("Starting word count after readfiles" + startingWord.getTotalNextWords());
     }
 
 	public Word getStartingWord(){

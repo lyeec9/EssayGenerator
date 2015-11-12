@@ -30,14 +30,12 @@ class Word{
 
 	//Implement machine learning here soon
 	public Word getRandomNextWord(){
-		System.out.println("how many words are there here? " + totalNextWords);
 		int index = (int)(Math.random()*totalNextWords);
-		System.out.println("index == " + index);
 		int counter = 0;
 		for(Map.Entry<Word, Integer> entry : nextWord.entrySet()){
 			counter+= entry.getValue();
-			System.out.println("entry value " +  counter);
 			if(counter > index){
+				//System.out.println("Current returned word from random " + entry.getKey());
 				return entry.getKey();
 			}
 		}

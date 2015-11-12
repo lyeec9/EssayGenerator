@@ -16,18 +16,17 @@ class EssayGenerator{
 		System.out.println("How many words would you like the essay to be?");
 		int length = Integer.parseInt(in.nextLine());
 		
-		EssayReader parser = new EssayReader(query, "/home/lychee/programs/Essay Generator/textFiles");
+		EssayReader parser = new EssayReader(query, "textFiles");
 		
 
 		//store all chosen strings used in the essay to print and update Markov chain later
 		try{
 			parser.readFiles();
-			System.out.println("Reached1");
 			ArrayList<String> chosenWords = generateEssay(parser.getStartingWord(), length);
-			System.out.println("Reached2");
-			print(chosenWords, query, "/home/lychee/programs/Essay Generator/output");
+			print(chosenWords, query, "output/");
 		}
 		catch(Exception e){
+			System.out.println("here's the exception:: " + e.getMessage());
 			//
 		}
 		//update(chosenWords);
@@ -37,7 +36,7 @@ class EssayGenerator{
 	public ArrayList<String> generateEssay(Word startingWord, int length) throws Exception{
 		Word currWord = startingWord;
 		ArrayList<String> wordsUsed = new ArrayList<>(length);
-		for(int wordCount = 0; wordCount < length && !currWord.getWord().equals(".") ; wordCount++){
+		for(int wordCount = 0; wordCount < length || !currWord.getWord().equals(".") ; wordCount++){
 			currWord = currWord.getRandomNextWord();
 			/*Do we want to trim the markov chain for only cycles?
 			while(currWord == null){ //hit a word at the end with no other option
@@ -46,13 +45,12 @@ class EssayGenerator{
 			}*/
 
 			/*Or do we want to start over from the beginning?*/
-			System.out.println(currWord);
 			if(currWord == null){
 				//however, this should never happen since we always hit periods at the end
 				throw new Exception("something went wrong");
 			}
 			wordsUsed.add(currWord.getWord());
-			if(currWord.equals(".") || currWord.equals(" ")){ //change to regex later to support additional punctuation
+			if(currWord.getWord().matches("\\p{Punct}") || currWord.getWord().equals(" ")){ //change to regex later to support additional punctuation
 				wordCount--;
 			}
 		}
@@ -60,11 +58,9 @@ class EssayGenerator{
 	}
 
 	public void print(ArrayList<String> words, String query, String outputDest) throws Exception {
-		System.out.println("Here!!");
-		System.out.println("words:: " + words);
 		File outputFolder = new File(outputDest);
 		Date date = new Date();
-		PrintWriter writer = new PrintWriter(query + " essay :" + (date.getTime()), "UTF-8");
+		PrintWriter writer = new PrintWriter(outputDest + query + " essay", "UTF-8");
 		boolean noPrevSpace = true;
 		for(int i = 1; i < words.size(); i++){
 			String word = words.get(i);
@@ -72,13 +68,24 @@ class EssayGenerator{
 				writer.print(word);
 				noPrevSpace = false;
 			}
-			if(!word.equals(" ") && !word.equals(".")){
+			if(!word.matches("\\p{Punct}") && !word.equals(" ") && !word.equals("\"1") && !word.equals("\"2")  && !word.equals("\'")){
 				writer.print(" " + word);
 			}
 			else{
-				if(word.equals(" ")){
-					writer.print("\n\n\t");
-					noPrevSpace = false;
+				if(word.equals("\"1")){
+					writer.print("\"");
+					noPrevSpace = true;
+				}
+				else if(word.equals("\"2")){
+					writer.print("\"");
+				}
+				else if(word.equals("\'")){
+					writer.print(word);
+					noPrevSpace = true;	
+				}
+				else if(word.equals(" ")){
+					writer.print("\r\n\n\t");
+					noPrevSpace = true;
 				}else{
 					writer.print(word);
 				}
