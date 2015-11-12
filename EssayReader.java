@@ -21,14 +21,19 @@ class EssayReader{
 	    Scanner sc;
 	    startingWord = new Word();
 	    for (File file : folder.listFiles()) {
-	        sc = new Scanner(file);
+	    	System.out.println("file name :: " + file.getName());
+	    	System.out.println("file path :: " + file.getAbsolutePath());
+	        //sc = new Scanner(new File("sherlock_holmes.txt"));
+	        sc = new Scanner(new BufferedReader(new FileReader(file)));
+
 	        Word currWord = startingWord;
 		    while(sc.hasNext()){
 		        while(sc.hasNextLine()){
 		        	//change later to include punctuation
-					String[] line = sc.nextLine().split("\\w+([.,]\\w+)*|\\S+");
-		        	for(int i = 1; i < line.length; i++){
+					String[] line = sc.nextLine().split("\\s+|(?=\\p{Punct})|(?<=\\p{Punct})");
+					for(int i = 0; i < line.length; i++){
 	        			Word nextWord = new Word(line[i]);
+	        			//System.out.println(nextWord);
 	        			currWord.setNextWord(nextWord);
 	        			currWord = nextWord;
 	        		}
@@ -39,9 +44,12 @@ class EssayReader{
         			currWord.setNextWord(nextWord);
         			currWord = nextWord;
 		        }
-	        	sc.nextLine();
+		        if(sc.hasNext()){
+	        		sc.nextLine();
+		        }
 		    }
     	}
+    	System.out.println("Starting word count after readfiles" + startingWord.getTotalNextWords());
     }
 
 	public Word getStartingWord(){

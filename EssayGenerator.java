@@ -22,7 +22,9 @@ class EssayGenerator{
 		//store all chosen strings used in the essay to print and update Markov chain later
 		try{
 			parser.readFiles();
+			System.out.println("Reached1");
 			ArrayList<String> chosenWords = generateEssay(parser.getStartingWord(), length);
+			System.out.println("Reached2");
 			print(chosenWords, query, "/home/lychee/programs/Essay Generator/output");
 		}
 		catch(Exception e){
@@ -44,6 +46,7 @@ class EssayGenerator{
 			}*/
 
 			/*Or do we want to start over from the beginning?*/
+			System.out.println(currWord);
 			if(currWord == null){
 				//however, this should never happen since we always hit periods at the end
 				throw new Exception("something went wrong");
@@ -57,6 +60,8 @@ class EssayGenerator{
 	}
 
 	public void print(ArrayList<String> words, String query, String outputDest) throws Exception {
+		System.out.println("Here!!");
+		System.out.println("words:: " + words);
 		File outputFolder = new File(outputDest);
 		Date date = new Date();
 		PrintWriter writer = new PrintWriter(query + " essay :" + (date.getTime()), "UTF-8");

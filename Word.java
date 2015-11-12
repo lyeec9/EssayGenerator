@@ -30,10 +30,13 @@ class Word{
 
 	//Implement machine learning here soon
 	public Word getRandomNextWord(){
+		System.out.println("how many words are there here? " + totalNextWords);
 		int index = (int)(Math.random()*totalNextWords);
+		System.out.println("index == " + index);
 		int counter = 0;
 		for(Map.Entry<Word, Integer> entry : nextWord.entrySet()){
 			counter+= entry.getValue();
+			System.out.println("entry value " +  counter);
 			if(counter > index){
 				return entry.getKey();
 			}
@@ -63,6 +66,11 @@ class Word{
 	@Override
 	public boolean equals(Object obj){
 		return this.word.equals(((Word)obj).word);
+	}
+
+	@Override
+	public String toString(){
+		return word;
 	}
 
 }
