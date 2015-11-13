@@ -22,8 +22,11 @@ class EssayGenerator{
 		//store all chosen strings used in the essay to print and update Markov chain later
 		try{
 			parser.readFiles();
-			ArrayList<String> chosenWords = generateEssay(parser.getStartingWord(), length);
+			ArrayList<Word> chosenWords = generateEssay(parser.getStartingWord(), length);
 			print(chosenWords, query, "output/");
+			System.out.println("Did you like your essay?");
+			boolean positive = in.nextLine().toLowerCase().charAt(0) == 'y';
+			machineLearning(chosenWords, positive, query, "cachedSearches/");
 		}
 		catch(Exception e){
 			System.out.println("here's the exception:: " + e.getMessage());
@@ -33,9 +36,9 @@ class EssayGenerator{
 		//store(query, chosenWords);
 	}
 
-	public ArrayList<String> generateEssay(Word startingWord, int length) throws Exception{
+	public ArrayList<Word> generateEssay(Word startingWord, int length) throws Exception{
 		Word currWord = startingWord;
-		ArrayList<String> wordsUsed = new ArrayList<>(length);
+		ArrayList<Word> wordsUsed = new ArrayList<>(length);
 		for(int wordCount = 0; wordCount < length || !currWord.getWord().equals(".") ; wordCount++){
 			currWord = currWord.getRandomNextWord();
 			/*Do we want to trim the markov chain for only cycles?
@@ -49,7 +52,7 @@ class EssayGenerator{
 				//however, this should never happen since we always hit periods at the end
 				throw new Exception("something went wrong");
 			}
-			wordsUsed.add(currWord.getWord());
+			wordsUsed.add(currWord);
 			if(currWord.getWord().matches("\\p{Punct}") || currWord.getWord().equals(" ")){ //change to regex later to support additional punctuation
 				wordCount--;
 			}
@@ -57,13 +60,12 @@ class EssayGenerator{
 		return wordsUsed;
 	}
 
-	public void print(ArrayList<String> words, String query, String outputDest) throws Exception {
+	public void print(ArrayList<Word> words, String query, String outputDest) throws Exception {
 		File outputFolder = new File(outputDest);
-		Date date = new Date();
 		PrintWriter writer = new PrintWriter(outputDest + query + " essay", "UTF-8");
 		boolean noPrevSpace = true;
 		for(int i = 1; i < words.size(); i++){
-			String word = words.get(i);
+			String word = words.get(i).getWord();
 			if(noPrevSpace){
 				writer.print(word);
 				noPrevSpace = false;
@@ -92,6 +94,21 @@ class EssayGenerator{
 			}
 		}
 		writer.close();
+	}
+
+	public void machineLearning(
+	ArrayList<Word> words, 
+	boolean positive, 
+	String query, 
+	String outputDest) throws IOException{
+		File outputFolder = new File(outputDest);
+		PrintWriter writer = new PrintWriter(outputDest + query, "UTF-8");
+		writer.println(words.size());
+		for(int i = 0; i < words.size()-1; i++){
+			Word currWord = words.get(i);
+			Word nextWord = words.get(i+1);
+			writer.println(currWord.setMachineLearning(nextWord, positive));
+		}
 	}
 }
 
